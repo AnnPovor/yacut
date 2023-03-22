@@ -26,19 +26,17 @@ def create_url():
         raise InvalidAPIUsage('Url не подходит.')
 
     custom_id = data.get('custom_id')
-    if custom_id is not None:
-        if not custom_id:
-            custom_id = get_unique_short_id()
-        else:
-            if URLMap.query.filter_by(short=custom_id).first() is not None:
-                raise InvalidAPIUsage(f'Имя "{custom_id}" уже занято.')
 
-            if not match(REGULAR_EXPRESSION, custom_id) or len(custom_id) > LEN:
-                raise InvalidAPIUsage(
-                    'Указано недопустимое имя для короткой ссылки')
-    else:
-        if 'custom_id' not in data or data['custom_id'] is None:
-            data['custom_id'] = get_unique_short_id()
+    if 'custom_id' not in data or custom_id is None:
+        data['custom_id'] = get_unique_short_id()
+
+    if custom_id:
+        if URLMap.query.filter_by(short=custom_id).first() is not None:
+            raise InvalidAPIUsage(f'Имя "{custom_id}" уже занято.')
+
+        if not match(REGULAR_EXPRESSION, custom_id) or len(custom_id) > LEN:
+            raise InvalidAPIUsage(
+                            'Указано недопустимое имя для короткой ссылки')
 
     urlmap = URLMap()
     urlmap.from_dict(data)
