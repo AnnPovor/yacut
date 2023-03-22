@@ -2,7 +2,7 @@ import random
 from http import HTTPStatus
 from string import ascii_letters, digits
 
-from flask import abort, flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for
 
 from yacut.forms import URLMapForm
 from yacut.models import URLMap
@@ -11,11 +11,11 @@ from . import app, db
 
 
 def get_unique_short_id():
-    letters_digits = ascii_letters + digits
-    uniq_url = ''.join(random.choices(letters_digits, k=6))
-    if URLMap.query.filter_by(short=uniq_url).first():
-        return get_unique_short_id()
-    return uniq_url
+    while True:
+        letters_digits = ascii_letters + digits
+        uniq_url = ''.join(random.choices(letters_digits, k=6))
+        if not URLMap.query.filter_by(short=uniq_url).first():
+            return uniq_url
 
 
 def check_unique_short_url(custom_id):
@@ -31,10 +31,6 @@ def index_view():
         return render_template('main.html', form=form)
 
     custom_id = form.custom_id.data
-    # if URLMap.query.filter_by(original=original).first():
-    #     flash('Такая ссылка уже была!')
-    #     return render_template('main.html', form=form)
-
     if not custom_id:
         custom_id = get_unique_short_id()
 
@@ -56,6 +52,4 @@ def index_view():
 @app.route('/<string:short>')
 def forwarding(short):
     urlmap = URLMap.query.filter_by(short=short).first_or_404()
-    if urlmap is None:
-        abort(404)
     return redirect(urlmap.original, code=HTTPStatus.FOUND)
