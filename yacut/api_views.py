@@ -36,7 +36,7 @@ def create_url():
 
         if not match(REGULAR_EXPRESSION, custom_id) or len(custom_id) > LEN:
             raise InvalidAPIUsage(
-                            'Указано недопустимое имя для короткой ссылки')
+                'Указано недопустимое имя для короткой ссылки')
 
     urlmap = URLMap()
     urlmap.from_dict(data)
